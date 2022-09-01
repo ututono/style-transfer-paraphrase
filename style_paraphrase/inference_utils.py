@@ -4,7 +4,6 @@ import torch
 import numpy as np
 
 from transformers import GPT2LMHeadModel, GPT2Tokenizer
-
 from style_paraphrase.dataset_config import DATASET_CONFIG, BASE_CONFIG
 from style_paraphrase.data_utils import update_config, Instance, get_label_dict
 

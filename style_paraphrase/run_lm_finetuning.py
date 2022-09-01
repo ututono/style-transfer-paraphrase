@@ -26,12 +26,13 @@ import re
 import shutil
 import subprocess
 
-import numpy as np
+
 import time
 import torch
 from torch.utils.data import DataLoader, RandomSampler, SequentialSampler
 from torch.utils.data.distributed import DistributedSampler
 from tqdm import tqdm, trange
+import numpy as np
 from collections import defaultdict
 
 from args import get_parser
@@ -136,6 +137,7 @@ def save_model(gpt2_model, output_dir, args, global_step, tokenizer=None):
 
 def train(args, gpt2_model, train_dataset, tokenizer):
     """ Train the model """
+
     if args.local_rank in [-1, 0]:
         try:
             tb_writer = SummaryWriter(logdir="runs/summary_%s" % args.job_id)
@@ -203,6 +205,7 @@ def train(args, gpt2_model, train_dataset, tokenizer):
     # this is necessary to ensure multi-GPU training happens since the gpt2_model.gpt2 pointer has been set to the model without the DDP wrapper
     gpt2_model.gpt2 = model
 
+    torch.cuda.empty_cache()
     # Train!
     logger.info("***** Running training *****")
     logger.info("  Num examples = %d", len(train_dataset))
@@ -351,9 +354,37 @@ def evaluate(args, gpt2_model, tokenizer, prefix=""):
     return result
 
 
+def arg_setvalue(args):
+    # args.output_dir='style_paraphrase/saved_models/test_paraphrase'
+    args.output_dir='style_paraphrase/saved_models/test_paraphrase'
+    args.model_type='gpt2'
+    # args.model_name_or_path='gpt2-large'
+    args.model_name_or_path = 'gpt2'
+    args.data_dir='C:\Repository\Informatik_Local\DLAM\TST\style-transfer-paraphrase\datasets\paranmt_filtered'
+    args.do_train=True
+    args.save_steps =500
+    args.logging_steps =20
+    args.save_total_limit =-1
+    args.evaluate_during_training=True
+    args.num_train_epochs =3
+    args.gradient_accumulation_steps =2
+    args.per_gpu_train_batch_size =1
+    # args.job_id paraphraser_test
+    args.job_id='paraphraser_test'
+    args.learning_rate=5e-5
+    args.prefix_input_type= 'original'
+    args.global_dense_feature_list='none'
+    args.specific_style_train= -1
+    args.optimizer ='adam'
+    args.overwrite_output_dir=True
+    return args
+
 def main():
     parser = get_parser("finetuning")
     args = parser.parse_args()
+
+    args=arg_setvalue(args)
+
 
     if (os.path.exists(args.output_dir) and os.listdir(args.output_dir) and args.do_train and not args.overwrite_output_dir):
         raise ValueError("Output directory ({}) already exists and is not empty. Use --overwrite_output_dir to overcome.".format(args.output_dir))
@@ -433,7 +464,7 @@ def main():
                                                 args=args,
                                                 model_class=model_class,
                                                 tokenizer_class=tokenizer_class)
-
+    # all_results = {}
     # Evaluation
     if args.do_eval and args.local_rank in [-1, 0]:
         eval_done = False
@@ -502,4 +533,5 @@ def main():
 
 
 if __name__ == "__main__":
+
     main()

@@ -5,7 +5,7 @@ def get_parser(parser_type, model_classes=None, all_models=None):
     parser = argparse.ArgumentParser()
 
     # Base parameters
-    parser.add_argument("--data_dir", default=None, type=str, required=True,
+    parser.add_argument("--data_dir", default='datasets/paranmt_filtered', type=str, required=False,
                         help="The input dataset directory.")
 
     parser.add_argument('--extra_embedding_dim', type=int, default=768,
@@ -34,7 +34,7 @@ def get_parser(parser_type, model_classes=None, all_models=None):
     parser.add_argument("--specific_style_train", type=str, default="-1")
 
     if parser_type == "finetuning":
-        parser.add_argument("--output_dir", default=None, type=str, required=True,
+        parser.add_argument("--output_dir", default='style_paraphrase/saved_models', type=str, required=False,
                             help="The output directory where the model predictions and checkpoints will be written.")
         parser.add_argument("--model_type", default="gpt2", type=str,
                             help="The model architecture to be fine-tuned.")

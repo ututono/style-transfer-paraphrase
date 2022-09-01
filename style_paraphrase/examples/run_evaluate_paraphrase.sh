@@ -36,3 +36,4 @@ python -m torch.distributed.launch --nproc_per_node=1 $BASE_DIR/run_lm_finetunin
     --global_dense_feature_list none \
     --specific_style_train -1
 
+pause
